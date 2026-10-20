@@ -139,6 +139,33 @@ export const POKEMON_TYPES: Record<PokemonTypeName, PokemonType> = {
  *   get formattedId: retorna l'atribut id en format "#025" (3 xifres, amb zeros a l'esquerra. Pista: padStart).
  */
 
+class BasePokemon {
+    private _id: number;
+    private _name: string;
+    private _url: string;
+
+    constructor(item: IPokeApiListItem) {
+        this._id = Number(item.url.split("/").filter(Boolean).pop());
+        this._name = item.name;
+        this._url = item.url;
+    }
+
+    get id(): number {
+        return this._id;
+    }
+    get name(): string {
+        return this._name;
+    }
+    get url(): string {
+        return this._url;
+    }
+
+    get formattedID() {
+        formattedID: string = this._id.padStart(3, "#0");
+        return this._id.padStart(3, "#0");
+    }
+}
+
 
 
 
