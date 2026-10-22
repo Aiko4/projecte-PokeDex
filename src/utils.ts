@@ -96,6 +96,26 @@ export function reproduirCrit(soundUrl: string): void {
  */
 // TODO: Implementa la lògica de l'exercici 1 seguint els requisits
 
+function renderitzarLlistaNoms(llista: Models.BasePokemon[]): void {
+    const container = document.getElementById("pokemon-list") as HTMLUListElement;
+
+    container.innerHTML = "";
+
+    for (let pokemon of llista){
+        let nouElement = document.createElement("li");
+         nouElement= li.dataset.id
+
+
+
+    }
+
+    if (!container) return;
+
+
+
+    container.textContent = missatge;
+    container.className = tipus; // el CSS defineix #status-message.loading / .error
+}
 
 /**
  * EXERCICI 3

@@ -58,7 +58,7 @@ export type Stat = [name: string, value: number];
 /**
  * Representa un tipus de Pokémon (Foc, Aigua, etc.)
  */
-export class PokemonType {
+export class PokemonType { //PON EL EXPORT PARA IMPORTAR EN OTROS ARCHIVOS.
 
     public readonly id: string;
     public readonly name: string;
@@ -139,7 +139,7 @@ export const POKEMON_TYPES: Record<PokemonTypeName, PokemonType> = {
  *   get formattedId: retorna l'atribut id en format "#025" (3 xifres, amb zeros a l'esquerra. Pista: padStart).
  */
 
-class BasePokemon {
+export class BasePokemon {
     private _id: number;
     private _name: string;
     private _url: string;
@@ -161,8 +161,10 @@ class BasePokemon {
     }
 
     get formattedID() {
-        formattedID: string = this._id.padStart(3, "#0");
-        return this._id.padStart(3, "#0");
+
+        let formattedID: string = this._id.toString().padStart(3,"0");
+        return formattedID;
+
     }
 }
 
@@ -206,5 +208,43 @@ class BasePokemon {
  *   get stats: retorna un array de type Stat
  */
 
+
+export class DetailedPokemon extends BasePokemon { //PON EL EXPORT PARA IMPORTAR EN OTROS ARCHIVOS.
+
+    private _weightKg: number;
+
+    private _imageURL: string;
+
+    private _types: PokemonType[] = [];
+
+    private _stat: Stat[] = [];
+
+    private _cryURL: String | null; //Si pones |, union de tipos que te permite que sea string o null.
+
+    constructor(data: IPokeApiDetail, url: string) {
+
+        let objecte: IPokeApiListItem = {
+            name: data.name,
+            url: url
+        }
+        super(objecte);
+
+        this._weightKg = data.weight;
+
+        this._imageURL = data.sprites?.front_default || ""; //Que si lo que devuelve es null, lo deja como cadena vacía.
+
+        this._cryURL = data.cries?.latest || null;
+
+        //this._types = data.types.map((t) => POKEMON_TYPES[t.type.name]).filter((type): type is PokemonType => type !== undefined);
+
+
+
+
+
+
+    }
+
+
+}
 
 
