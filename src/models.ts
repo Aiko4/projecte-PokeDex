@@ -150,6 +150,7 @@ export class BasePokemon {
         this._url = item.url;
     }
 
+    // els getters funcionen diferent. No cal fer servir BasePokemon.get(), sino directament BasePokemon.id
     get id(): number {
         return this._id;
     }
@@ -161,10 +162,8 @@ export class BasePokemon {
     }
 
     get formattedID() {
-
-        let formattedID: string = this._id.toString().padStart(3,"0");
+        let formattedID: string = "#" + this._id.toString().padStart(3,"0");  // revisar, no se si el # s'hauria d'afegir aixi
         return formattedID;
-
     }
 }
 

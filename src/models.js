@@ -72,6 +72,30 @@ export const POKEMON_TYPES = {
  *   get url: retorna l'atribut privat corresponent.
  *   get formattedId: retorna l'atribut id en format "#025" (3 xifres, amb zeros a l'esquerra. Pista: padStart).
  */
+export class BasePokemon {
+    _id;
+    _name;
+    _url;
+    constructor(item) {
+        this._id = Number(item.url.split("/").filter(Boolean).pop());
+        this._name = item.name;
+        this._url = item.url;
+    }
+    // els getters funcionen diferent. No cal fer servir BasePokemon.get(), sino directament BasePokemon.id
+    get id() {
+        return this._id;
+    }
+    get name() {
+        return this._name;
+    }
+    get url() {
+        return this._url;
+    }
+    get formattedID() {
+        let formattedID = "#" + this._id.toString().padStart(3, "0"); // revisar, no se si el # s'hauria d'afegir aixi
+        return formattedID;
+    }
+}
 /**
  * EXERCICI 3: class DetailedPokemon
  *
@@ -108,4 +132,22 @@ export const POKEMON_TYPES = {
  *   get types: retorna un array d'objectes PokemonType
  *   get stats: retorna un array de type Stat
  */
+export class DetailedPokemon extends BasePokemon {
+    _weightKg;
+    _imageURL;
+    _types = [];
+    _stat = [];
+    _cryURL; //Si pones |, union de tipos que te permite que sea string o null.
+    constructor(data, url) {
+        let objecte = {
+            name: data.name,
+            url: url
+        };
+        super(objecte);
+        this._weightKg = data.weight;
+        this._imageURL = data.sprites?.front_default || ""; //Que si lo que devuelve es null, lo deja como cadena vacía.
+        this._cryURL = data.cries?.latest || null;
+        //this._types = data.types.map((t) => POKEMON_TYPES[t.type.name]).filter((type): type is PokemonType => type !== undefined);
+    }
+}
 //# sourceMappingURL=models.js.map

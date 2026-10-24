@@ -1,8 +1,50 @@
-// ==========================================================
-// EXERCICI 1: Llistar els 151 Pokémon
-// ==========================================================
-// TODO: Implementa la lògica de l'exercici 1 seguint els requisits
-export {};
+import { BasePokemon } from "./models.js";
+import * as Utils from "./utils.js";
+const mapaPokemon = new Map();
+let llistaPokemons = [];
+let btnCarregar = document.getElementById("btn-show-all");
+let filterBox = document.querySelector(".search-box");
+btnCarregar.addEventListener("click", carregarLlistaPokemon);
+filterBox.addEventListener("input", filtrar);
+async function carregarLlistaPokemon() {
+    Utils.netejarCercador();
+    Utils.mostrarEstat("Carregant llista de pokemons...", "loading");
+    try {
+        const resposta = await fetch("https://pokeapi.co/api/v2/pokemon?limit=151");
+        if (!resposta.ok) {
+            throw new Error(`Error HTTP: ${resposta.status}`);
+        }
+        else {
+            const results = await resposta.json();
+            for (let r of results.results) {
+                let pokemon = new BasePokemon(r);
+                mapaPokemon.set(pokemon.id, pokemon);
+                llistaPokemons = Array.from(mapaPokemon.values());
+            }
+            Utils.renderitzarLlistaNoms(llistaPokemons);
+            Utils.amagarEstat();
+        }
+    }
+    catch {
+        Utils.mostrarEstat("S'ha produit el següent error: ", "error");
+    }
+}
+function filtrar() {
+    let llistaPokesFiltrats = [];
+    let inputSearchBox = document.getElementById("search-input").value.toLowerCase().trim();
+    let esNumero = Number(inputSearchBox); // passem el input a numero en una variable temporal
+    if (inputSearchBox === "") {
+        Utils.renderitzarLlistaNoms(llistaPokemons);
+    }
+    else if (!isNaN(esNumero)) { // comprovem si el suposat numero que s'ha passat per input es realment un numeric
+        llistaPokesFiltrats = llistaPokemons.filter(pokemonFiltrat => pokemonFiltrat.id === esNumero);
+        Utils.renderitzarLlistaNoms(llistaPokesFiltrats);
+    }
+    else { // l'input es typeof string
+        llistaPokesFiltrats = llistaPokemons.filter(pokemonFiltrat => pokemonFiltrat.name.includes(inputSearchBox));
+        Utils.renderitzarLlistaNoms(llistaPokesFiltrats);
+    }
+}
 // ==========================================================
 // EXERCICI 2: Cercador en temps real
 // ==========================================================

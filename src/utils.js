@@ -82,6 +82,18 @@ export function reproduirCrit(soundUrl) {
  *  - Afegir el <li> al contenidor amb appendChild.
  */
 // TODO: Implementa la lògica de l'exercici 1 seguint els requisits
+export function renderitzarLlistaNoms(llista) {
+    const container = document.getElementById("pokemon-list");
+    container.innerHTML = "";
+    for (let pokemon of llista) {
+        let nouElement = document.createElement("li");
+        nouElement.dataset.id = pokemon.id.toString(); // dataset es una propietat dels elements <li> que permeten guardar informacio de l'element. toString() perque nomes admeten strings
+        nouElement.dataset.name = pokemon.name;
+        nouElement.dataset.url = pokemon.url;
+        nouElement.innerHTML = `${pokemon.formattedID}- ${pokemon.name}`;
+        container.appendChild(nouElement);
+    }
+}
 /**
  * EXERCICI 3
  * Renderitza la targeta de detall dins de <div id="pokemon-detail">.

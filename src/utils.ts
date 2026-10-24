@@ -96,25 +96,20 @@ export function reproduirCrit(soundUrl: string): void {
  */
 // TODO: Implementa la lògica de l'exercici 1 seguint els requisits
 
-function renderitzarLlistaNoms(llista: Models.BasePokemon[]): void {
+export function renderitzarLlistaNoms(llista: Models.BasePokemon[]): void {
     const container = document.getElementById("pokemon-list") as HTMLUListElement;
 
     container.innerHTML = "";
 
     for (let pokemon of llista){
         let nouElement = document.createElement("li");
-         nouElement= li.dataset.id
+         nouElement.dataset.id = pokemon.id.toString();  // dataset es una propietat dels elements <li> que permeten guardar informacio de l'element. toString() perque nomes admeten strings
+         nouElement.dataset.name = pokemon.name;
+         nouElement.dataset.url = pokemon.url;
 
-
-
+         nouElement.innerHTML = `${pokemon.formattedID}- ${pokemon.name}`;
+         container.appendChild(nouElement);
     }
-
-    if (!container) return;
-
-
-
-    container.textContent = missatge;
-    container.className = tipus; // el CSS defineix #status-message.loading / .error
 }
 
 /**
