@@ -29,6 +29,9 @@ export class PokemonType {
     }
 }
 export const POKEMON_TYPES = {
+    // He cambiado el PokemonTypeName porque solo aceptaba palabras específicas (las que ves arriba) i
+    // petaria si pusieras algo que no esta incluido en el tipo.
+    // En cambio, si pones string y pones cualquier cosa, lo dejará como undefined y el codigo no petará.
     normal: new PokemonType("normal", "Normal", "⚪", "#a8a878"),
     fire: new PokemonType("fire", "Foc", "🔥", "#c84010"),
     water: new PokemonType("water", "Aigua", "💧", "#2060c0"),
@@ -91,7 +94,7 @@ export class BasePokemon {
     get url() {
         return this._url;
     }
-    get formattedID() {
+    get formattedId() {
         let formattedID = "#" + this._id.toString().padStart(3, "0"); // revisar, no se si el # s'hauria d'afegir aixi
         return formattedID;
     }
@@ -134,20 +137,38 @@ export class BasePokemon {
  */
 export class DetailedPokemon extends BasePokemon {
     _weightKg;
-    _imageURL;
+    _imageUrl;
     _types = [];
-    _stat = [];
-    _cryURL; //Si pones |, union de tipos que te permite que sea string o null.
+    _stats = [];
+    _cryUrl; //Si pones |, union de tipos que te permite que sea string o null.
     constructor(data, url) {
         let objecte = {
             name: data.name,
             url: url
         };
         super(objecte);
-        this._weightKg = data.weight;
-        this._imageURL = data.sprites?.front_default || ""; //Que si lo que devuelve es null, lo deja como cadena vacía.
-        this._cryURL = data.cries?.latest || null;
-        //this._types = data.types.map((t) => POKEMON_TYPES[t.type.name]).filter((type): type is PokemonType => type !== undefined);
+        this._weightKg = data.weight / 10;
+        this._imageUrl = data.sprites?.front_default || ""; //Que si lo que devuelve es null, lo deja como cadena vacía.
+        this._cryUrl = data.cries?.latest || null;
+        this._types = data.types
+            .map((t) => POKEMON_TYPES[t.type.name])
+            .filter((type) => type !== undefined);
+        this._stats = data.stats.map((s) => [s.stat.name, s.base_stat]);
+    }
+    get weightKg() {
+        return this._weightKg;
+    }
+    get stats() {
+        return this._stats;
+    }
+    get types() {
+        return this._types;
+    }
+    get imageUrl() {
+        return this._imageUrl;
+    }
+    get cryUrl() {
+        return this._cryUrl;
     }
 }
 //# sourceMappingURL=models.js.map

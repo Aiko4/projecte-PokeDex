@@ -1,3 +1,8 @@
+// ==========================================================
+// EXERCICI 1: Llistar els 151 Pokémon
+// ==========================================================
+// TODO: Implementa la lògica de l'exercici 1 seguint els requisits
+import * as Models from "./models.js";
 import { BasePokemon } from "./models.js";
 import * as Utils from "./utils.js";
 const mapaPokemon = new Map();
@@ -52,7 +57,44 @@ function filtrar() {
 // ==========================================================
 // EXERCICI 3: Detall del Pokémon, cache i crit
 // ==========================================================
-// TODO: Implementa la lògica de l'exercici 3 seguint els requisits
+const cachePokemon = new Map();
+//Primer, capturo la llista dels pokemons .
+let llistaUl = document.getElementById("pokemon-list");
+if (llistaUl !== null) {
+    //Sense el event, no es sabria quin element hauria clicat de la llista.
+    llistaUl.addEventListener("click", (event) => {
+        let pokemonEscollit = event.target;
+        let itemLi = pokemonEscollit.closest("li");
+        if (!itemLi || !itemLi.dataset.id) {
+            return;
+        }
+        Utils.marcarItemActiu(itemLi);
+        let idPokemon = Number(itemLi.dataset.id);
+        let infoPokemon = mapaPokemon.get(idPokemon);
+        if (infoPokemon) {
+            carregarDetallPokemon(infoPokemon.id, infoPokemon.url);
+        }
+    });
+}
+async function carregarDetallPokemon(id, url) {
+    const pokemonCache = cachePokemon.get(id);
+    if (pokemonCache != null) {
+        Utils.renderitzarDetallCard(pokemonCache);
+        return;
+    }
+    try {
+        Utils.mostrarEstat("Carregant dades del Pokémon...", "loading");
+        const resposta = await fetch(url);
+        const dadesRaw = (await resposta.json());
+        const pokemonDetall = new Models.DetailedPokemon(dadesRaw, url);
+        cachePokemon.set(id, pokemonDetall);
+        Utils.renderitzarDetallCard(pokemonDetall);
+        Utils.amagarEstat();
+    }
+    catch (error) {
+        Utils.mostrarEstat("Error en carregar el Pokémon", "error");
+    }
+}
 // ==========================================================
 // EXERCICI 4: Botons de filtre per tipus
 // ==========================================================

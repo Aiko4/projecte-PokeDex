@@ -107,7 +107,7 @@ export function renderitzarLlistaNoms(llista: Models.BasePokemon[]): void {
          nouElement.dataset.name = pokemon.name;
          nouElement.dataset.url = pokemon.url;
 
-         nouElement.innerHTML = `${pokemon.formattedID}- ${pokemon.name}`;
+         nouElement.innerHTML = `${pokemon.formattedId}- ${pokemon.name}`;
          container.appendChild(nouElement);
     }
 }
@@ -134,8 +134,55 @@ export function renderitzarLlistaNoms(llista: Models.BasePokemon[]): void {
  *  - El botó del crit només s'ha de pintar si pokemon.cryUrl no és null.
  *  - Un cop pintat l'HTML, afegeix el listener de clic al botó i crida reproduirCrit().
  */
-
 // TODO: Implementa la lògica de l'exercici 3 seguint els requisits
+
+export function renderitzarDetallCard(pokemon: Models.DetailedPokemon){
+    const containerDetalls = document.getElementById("pokemon-detail") as HTMLDivElement;
+
+    if(!containerDetalls){ // Si no troba el div, doncs que no faci res.
+        return;
+    }
+
+    let botoCritHtml = ""; //Només crearem el boto per a poder reproduir el soroll si n'hi ha so.
+    if(pokemon.cryUrl !== null){
+        botoCritHtml = `<button id="btn-play-cry" class="btn-cry">🔊 Escolta el crit</button>`;
+    }
+
+    let textTipusPokemon = "";
+    //Para cada pokemon, hem de posar el seu tipus, es a dir, l'emoji del seu element i l'element en si.
+    for(let tipus of pokemon.types){
+        textTipusPokemon += `${tipus.label}`;
+    }
+
+    let estadHTML = "";
+    //A més, per a cada pokemon hem de posar les dades (stat), es a dir les seves estadístiques.
+    for(let [name,value] of pokemon.stats){
+        estadHTML += `<div class="stat-box"><span>${name}</span><strong>${value}</strong></div>`
+    }
+
+    //Pintem l'HTML
+    containerDetalls.innerHTML = `<div class="detail-card">
+        <h3>${pokemon.formattedId} ${pokemon.name}</h3>
+        <img src="${pokemon.imageUrl}" alt="${pokemon.name}">
+        ${botoCritHtml}
+        <p><strong>Pes:</strong>${pokemon.weightKg} kg</p>
+        <p><strong>Tipus:</strong>${textTipusPokemon}</p>
+        <div class="stats-grid">
+            ${estadHTML}
+        </div>
+    </div>`
+
+    //Ara, per a reproduir el crit hem de tornar a buscar el botó, i en cas de wue sigui allà, el reproduim amb el mètode ja proporcionat.
+
+    if(botoCritHtml){
+        let botoCrit = document.getElementById("btn-play-cry") as HTMLButtonElement;
+            botoCrit.addEventListener("click", () => {
+                reproduirCrit(pokemon.cryUrl!); // poso el ! per a garantir que en aquest moment la variable no es null.
+            });
+    }
+
+
+}
 
 
 /**

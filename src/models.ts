@@ -1,249 +1,278 @@
-// ==========================================================
-// 1. INTERFÍCIES DTO (Contractes de dades de la PokéAPI)
-//    Ja venen donades. Descriuen la forma del JSON que retorna l'API.
-//    IMPORTANT: només existeixen en temps de compilació. TypeScript NO
-//    valida en execució que l'API realment retorni aquesta estructura.
-// ==========================================================
-
-export interface IPokeApiListItem {
-    name: string;
-    url: string;
-}
-
-export interface IPokeApiListResponse {
-    count: number;
-    next: string | null;
-    previous: string | null;
-    results: IPokeApiListItem[];
-}
-
-export interface IPokeApiTypeSlot {
-    slot: number;
-    pokemon: IPokeApiListItem;
-}
-
-export interface IPokeApiTypeResponse {
-    pokemon: IPokeApiTypeSlot[];
-}
-
-export interface IPokeApiDetail {
-    id: number;
-    name: string;
-    weight: number;
-    sprites: { front_default: string | null };
-    types: Array<{ type: { name: string } }>;
-    stats: Array<{ base_stat: number; stat: { name: string } }>;
-    cries?: { latest?: string; legacy?: string };
-}
+    // ==========================================================
+    // 1. INTERFÍCIES DTO (Contractes de dades de la PokéAPI)
+    //    Ja venen donades. Descriuen la forma del JSON que retorna l'API.
+    //    IMPORTANT: només existeixen en temps de compilació. TypeScript NO
+    //    valida en execució que l'API realment retorni aquesta estructura.
+    // ==========================================================
 
 
-// ==========================================================
-// 2. ALIAS DE TIPUS
-//    Ja venen donats. Els fa servir utils.ts i main.ts.
-// ==========================================================
+    import * as url from "node:url";
 
-/** Estats possibles del missatge d'estat de la interfície. */
-export type EstatTipus = "loading" | "error";
-
-/** Estadística d'un Pokémon: tupla etiquetada [nom, valor base]. Ex: ["hp", 35] */
-export type Stat = [name: string, value: number];
-
-
-// ==========================================================
-// 3. PokemonType (JA IMPLEMENTADA, usa-la com a MODEL)
-//    Fixa't: `readonly` per a dades que no canvien i un getter
-//    només on hi ha lògica (label).
-// ==========================================================
-
-/**
- * Representa un tipus de Pokémon (Foc, Aigua, etc.)
- */
-export class PokemonType { //PON EL EXPORT PARA IMPORTAR EN OTROS ARCHIVOS.
-
-    public readonly id: string;
-    public readonly name: string;
-    public readonly icon: string;
-    public readonly color: string;
-
-    // 2. Rebre els valors i fer l'assignació manual
-    constructor(id: string, name: string, icon: string, color: string) {
-        this.id = id;
-        this.name = name;
-        this.icon = icon;
-        this.color = color;
-    }
-    get label(): string {
-        return `${this.icon} ${this.name}`;
-    }
-}
-
-// ==========================================================
-// 4. DICCIONARI CENTRALITZAT DE TIPUS (ja donat)
-// Amb el tipus literal 'PokemonTypeName' i 'Record' ens assegurem
-// un diccionari de claus tancades: TypeScript validarà que hi siguin
-// tots 17 tipus i evitarà l'ús de cadenes de text (strings) arbitràries.
-//
-// Nota PokeFans: La PokéAPI retorna els tipus ACTUALS: alguns Pokémon de
-// la 1a gen ara són de tipus "fairy" (Clefairy) o "steel" (Magnemite).
-// Per això el diccionari té 17 tipus i no 15.
-// ==========================================================
-
-export type PokemonTypeName = | "normal" | "fire" | "water" | "grass" | "electric" | "ice" | "fighting"
-    | "poison" | "ground" | "flying" | "psychic" | "bug" | "rock" | "ghost" | "dragon" | "steel" | "fairy";
-
-export const POKEMON_TYPES: Record<PokemonTypeName, PokemonType> = {
-    normal: new PokemonType("normal", "Normal", "⚪", "#a8a878"),
-    fire: new PokemonType("fire", "Foc", "🔥", "#c84010"),
-    water: new PokemonType("water", "Aigua", "💧", "#2060c0"),
-    grass: new PokemonType("grass", "Planta", "🌿", "#208020"),
-    electric: new PokemonType("electric", "Elèctric", "⚡", "#a08000"),
-    ice: new PokemonType("ice", "Gel", "❄️", "#68c2d0"),
-    fighting: new PokemonType("fighting", "Lluita", "🥊", "#c03028"),
-    poison: new PokemonType("poison", "Verí", "☠️", "#703870"),
-    ground: new PokemonType("ground", "Terra", "⏳", "#e0c068"),
-    flying: new PokemonType("flying", "Volador", "🦅", "#a890f0"),
-    psychic: new PokemonType("psychic", "Psíquic", "🔮", "#f85888"),
-    bug: new PokemonType("bug", "Insecte", "🐛", "#a8b820"),
-    rock: new PokemonType("rock", "Roca", "🪨", "#b8a038"),
-    ghost: new PokemonType("ghost", "Fantasma", "👻", "#705898"),
-    dragon: new PokemonType("dragon", "Drac", "🐉", "#7038f8"),
-    steel: new PokemonType("steel", "Acer", "⚙️", "#b8b8d0"),
-    fairy: new PokemonType("fairy", "Fada", "🧚", "#ee99ac")
-};
-
-
-// ==========================================================
-// 5. CLASSES QUE HAS D'IMPLEMENTAR TU
-//    Els getters ja tenen signatura i retornen un valor provisional
-//    perquè el projecte compili. Substitueix-los per la implementació real.
-// ==========================================================
-
-/**
- * EXERCICI 1: class BasePokemon  -> És la classe PARE. Representa un Pokémon de la llista general.
- *
- * Atributs (privats, amb prefix _):
- *   _id: número que conté l'identificador únic del pokemon
- *   _name: cadena de text que conté el nom del pokemon
- *   _url: cadena de text que conté la url per obtenir el detall del pokemon
- *
- * Constructor(item: IPokeApiListItem):
- *   - Desa name i url.
- *   - L'id NO ve a les dades: has d'extreure'l de la url.
- *     Ex: "https://pokeapi.co/api/v2/pokemon/25/"  ->  25
- *     Pista: split("/"), filter(Boolean), pop(), Number().
- *
- * Getters:
- *   get id: retorna l'atribut privat corresponent.
- *   get name: retorna l'atribut privat corresponent.
- *   get url: retorna l'atribut privat corresponent.
- *   get formattedId: retorna l'atribut id en format "#025" (3 xifres, amb zeros a l'esquerra. Pista: padStart).
- */
-
-export class BasePokemon {
-    private _id: number;
-    private _name: string;
-    private _url: string;
-
-    constructor(item: IPokeApiListItem) {
-        this._id = Number(item.url.split("/").filter(Boolean).pop());
-        this._name = item.name;
-        this._url = item.url;
+    export interface IPokeApiListItem {
+        name: string;
+        url: string;
     }
 
-    // els getters funcionen diferent. No cal fer servir BasePokemon.get(), sino directament BasePokemon.id
-    get id(): number {
-        return this._id;
-    }
-    get name(): string {
-        return this._name;
-    }
-    get url(): string {
-        return this._url;
+    export interface IPokeApiListResponse {
+        count: number;
+        next: string | null;
+        previous: string | null;
+        results: IPokeApiListItem[];
     }
 
-    get formattedID() {
-        let formattedID: string = "#" + this._id.toString().padStart(3,"0");  // revisar, no se si el # s'hauria d'afegir aixi
-        return formattedID;
+    export interface IPokeApiTypeSlot {
+        slot: number;
+        pokemon: IPokeApiListItem;
     }
-}
+
+    export interface IPokeApiTypeResponse {
+        pokemon: IPokeApiTypeSlot[];
+    }
+
+    export interface IPokeApiDetail {
+        id: number;
+        name: string;
+        weight: number;
+        sprites: { front_default: string | null };
+        types: Array<{ type: { name: string } }>;
+        stats: Array<{ base_stat: number; stat: { name: string } }>;
+        cries?: { latest?: string; legacy?: string };
+    }
 
 
+    // ==========================================================
+    // 2. ALIAS DE TIPUS
+    //    Ja venen donats. Els fa servir utils.ts i main.ts.
+    // ==========================================================
+
+    /** Estats possibles del missatge d'estat de la interfície. */
+    export type EstatTipus = "loading" | "error";
+
+    /** Estadística d'un Pokémon: tupla etiquetada [nom, valor base]. Ex: ["hp", 35] */
+    export type Stat = [name: string, value: number];
 
 
-/**
- * EXERCICI 3: class DetailedPokemon
- *
- * Classe FILLA. Pokémon amb totes les dades de la targeta de detall.
- * Ha d'HEREDAR de BasePokemon
- *
- * Atributs (privats):
- *   _weightKg: pes del pokemon
- *   _imageUrl: cadena de text amb la url de la imatge del pokemon
- *   _types: array dels tipus als que pertany el pokemon (usar classe PokemonType)
- *   _stats: array amb informació sobre diferents atrributs (usar tupla type Stat)
- *   _cryUrl: cadena de text amb la url amb l'àudio del seu crit (pot ser null)
- *
- * Constructor(data: IPokeApiDetail, url: string):
- *   - Crida obligatòria a super() amb un objecte { data.name, data.url } (IPokeApiListItem).
- *   - weightKg: obtenir de data.weight (l'API dóna el pes en hectograms -> divideix per 10).
- *   - imageUrl: obtenir de data.sprites.front_default, o "" si és null.
- *   - cryUrl: obtenir de data.cries.latest, o null si no existeix (pista: ?. i ||).
- *   - types: converteix els noms de l'API ("fire") a instàncies de PokemonType
- *            usant el diccionari POKEMON_TYPES. Podeu copiar aquest codi:
- *
- *      this._types = data.types
- *          .map((t) => POKEMON_TYPES[t.type.name])
- *          .filter((type): type is PokemonType => type !== undefined);
- *
- *   - stats: converteix cada element de l'API en una tupla [nom, valor]. Podeu copiar aquest codi:
- *
- *     this._stats = data.stats.map((s): Stat => [s.stat.name, s.base_stat]);
- *
- * Getters:
- *   get weightKg: retorna l'atribut privat corresponent.
- *   get imageUrl: retorna l'atribut privat corresponent.
- *   get cryUrl: retorna l'atribut privat corresponent (pot ser string o null).
- *   get types: retorna un array d'objectes PokemonType
- *   get stats: retorna un array de type Stat
- */
+    // ==========================================================
+    // 3. PokemonType (JA IMPLEMENTADA, usa-la com a MODEL)
+    //    Fixa't: `readonly` per a dades que no canvien i un getter
+    //    només on hi ha lògica (label).
+    // ==========================================================
 
+    /**
+     * Representa un tipus de Pokémon (Foc, Aigua, etc.)
+     */
+    export class PokemonType { //PON EL EXPORT PARA IMPORTAR EN OTROS ARCHIVOS.
 
-export class DetailedPokemon extends BasePokemon { //PON EL EXPORT PARA IMPORTAR EN OTROS ARCHIVOS.
+        public readonly id: string;
+        public readonly name: string;
+        public readonly icon: string;
+        public readonly color: string;
 
-    private _weightKg: number;
-
-    private _imageURL: string;
-
-    private _types: PokemonType[] = [];
-
-    private _stat: Stat[] = [];
-
-    private _cryURL: String | null; //Si pones |, union de tipos que te permite que sea string o null.
-
-    constructor(data: IPokeApiDetail, url: string) {
-
-        let objecte: IPokeApiListItem = {
-            name: data.name,
-            url: url
+        // 2. Rebre els valors i fer l'assignació manual
+        constructor(id: string, name: string, icon: string, color: string) {
+            this.id = id;
+            this.name = name;
+            this.icon = icon;
+            this.color = color;
         }
-        super(objecte);
+        get label(): string {
+            return `${this.icon} ${this.name}`;
+        }
+    }
 
-        this._weightKg = data.weight;
+    // ==========================================================
+    // 4. DICCIONARI CENTRALITZAT DE TIPUS (ja donat)
+    // Amb el tipus literal 'PokemonTypeName' i 'Record' ens assegurem
+    // un diccionari de claus tancades: TypeScript validarà que hi siguin
+    // tots 17 tipus i evitarà l'ús de cadenes de text (strings) arbitràries.
+    //
+    // Nota PokeFans: La PokéAPI retorna els tipus ACTUALS: alguns Pokémon de
+    // la 1a gen ara són de tipus "fairy" (Clefairy) o "steel" (Magnemite).
+    // Per això el diccionari té 17 tipus i no 15.
+    // ==========================================================
 
-        this._imageURL = data.sprites?.front_default || ""; //Que si lo que devuelve es null, lo deja como cadena vacía.
+    export type PokemonTypeName = | "normal" | "fire" | "water" | "grass" | "electric" | "ice" | "fighting"
+        | "poison" | "ground" | "flying" | "psychic" | "bug" | "rock" | "ghost" | "dragon" | "steel" | "fairy";
 
-        this._cryURL = data.cries?.latest || null;
+    export const POKEMON_TYPES: Record<string, PokemonType> = {
 
-        //this._types = data.types.map((t) => POKEMON_TYPES[t.type.name]).filter((type): type is PokemonType => type !== undefined);
+        // He cambiado el PokemonTypeName porque solo aceptaba palabras específicas (las que ves arriba) i
+        // petaria si pusieras algo que no esta incluido en el tipo.
+        // En cambio, si pones string y pones cualquier cosa, lo dejará como undefined y el codigo no petará.
+
+        normal: new PokemonType("normal", "Normal", "⚪", "#a8a878"),
+        fire: new PokemonType("fire", "Foc", "🔥", "#c84010"),
+        water: new PokemonType("water", "Aigua", "💧", "#2060c0"),
+        grass: new PokemonType("grass", "Planta", "🌿", "#208020"),
+        electric: new PokemonType("electric", "Elèctric", "⚡", "#a08000"),
+        ice: new PokemonType("ice", "Gel", "❄️", "#68c2d0"),
+        fighting: new PokemonType("fighting", "Lluita", "🥊", "#c03028"),
+        poison: new PokemonType("poison", "Verí", "☠️", "#703870"),
+        ground: new PokemonType("ground", "Terra", "⏳", "#e0c068"),
+        flying: new PokemonType("flying", "Volador", "🦅", "#a890f0"),
+        psychic: new PokemonType("psychic", "Psíquic", "🔮", "#f85888"),
+        bug: new PokemonType("bug", "Insecte", "🐛", "#a8b820"),
+        rock: new PokemonType("rock", "Roca", "🪨", "#b8a038"),
+        ghost: new PokemonType("ghost", "Fantasma", "👻", "#705898"),
+        dragon: new PokemonType("dragon", "Drac", "🐉", "#7038f8"),
+        steel: new PokemonType("steel", "Acer", "⚙️", "#b8b8d0"),
+        fairy: new PokemonType("fairy", "Fada", "🧚", "#ee99ac")
+    };
 
 
+    // ==========================================================
+    // 5. CLASSES QUE HAS D'IMPLEMENTAR TU
+    //    Els getters ja tenen signatura i retornen un valor provisional
+    //    perquè el projecte compili. Substitueix-los per la implementació real.
+    // ==========================================================
 
+    /**
+     * EXERCICI 1: class BasePokemon  -> És la classe PARE. Representa un Pokémon de la llista general.
+     *
+     * Atributs (privats, amb prefix _):
+     *   _id: número que conté l'identificador únic del pokemon
+     *   _name: cadena de text que conté el nom del pokemon
+     *   _url: cadena de text que conté la url per obtenir el detall del pokemon
+     *
+     * Constructor(item: IPokeApiListItem):
+     *   - Desa name i url.
+     *   - L'id NO ve a les dades: has d'extreure'l de la url.
+     *     Ex: "https://pokeapi.co/api/v2/pokemon/25/"  ->  25
+     *     Pista: split("/"), filter(Boolean), pop(), Number().
+     *
+     * Getters:
+     *   get id: retorna l'atribut privat corresponent.
+     *   get name: retorna l'atribut privat corresponent.
+     *   get url: retorna l'atribut privat corresponent.
+     *   get formattedId: retorna l'atribut id en format "#025" (3 xifres, amb zeros a l'esquerra. Pista: padStart).
+     */
 
+    export class BasePokemon {
+        private _id: number;
+        private _name: string;
+        private _url: string;
 
+        constructor(item: IPokeApiListItem) {
+            this._id = Number(item.url.split("/").filter(Boolean).pop());
+            this._name = item.name;
+            this._url = item.url;
+        }
 
+        // els getters funcionen diferent. No cal fer servir BasePokemon.get(), sino directament BasePokemon.id
+        get id(): number {
+            return this._id;
+        }
+        get name(): string {
+            return this._name;
+        }
+        get url(): string {
+            return this._url;
+        }
+
+        get formattedId(): string {
+            let formattedID: string = "#" + this._id.toString().padStart(3,"0");  // revisar, no se si el # s'hauria d'afegir aixi
+            return formattedID;
+        }
     }
 
 
-}
+
+
+    /**
+     * EXERCICI 3: class DetailedPokemon
+     *
+     * Classe FILLA. Pokémon amb totes les dades de la targeta de detall.
+     * Ha d'HEREDAR de BasePokemon
+     *
+     * Atributs (privats):
+     *   _weightKg: pes del pokemon
+     *   _imageUrl: cadena de text amb la url de la imatge del pokemon
+     *   _types: array dels tipus als que pertany el pokemon (usar classe PokemonType)
+     *   _stats: array amb informació sobre diferents atrributs (usar tupla type Stat)
+     *   _cryUrl: cadena de text amb la url amb l'àudio del seu crit (pot ser null)
+     *
+     * Constructor(data: IPokeApiDetail, url: string):
+     *   - Crida obligatòria a super() amb un objecte { data.name, data.url } (IPokeApiListItem).
+     *   - weightKg: obtenir de data.weight (l'API dóna el pes en hectograms -> divideix per 10).
+     *   - imageUrl: obtenir de data.sprites.front_default, o "" si és null.
+     *   - cryUrl: obtenir de data.cries.latest, o null si no existeix (pista: ?. i ||).
+     *   - types: converteix els noms de l'API ("fire") a instàncies de PokemonType
+     *            usant el diccionari POKEMON_TYPES. Podeu copiar aquest codi:
+     *
+     *      this._types = data.types
+     *          .map((t) => POKEMON_TYPES[t.type.name])
+     *          .filter((type): type is PokemonType => type !== undefined);
+     *
+     *   - stats: converteix cada element de l'API en una tupla [nom, valor]. Podeu copiar aquest codi:
+     *
+     *     this._stats = data.stats.map((s): Stat => [s.stat.name, s.base_stat]);
+     *
+     * Getters:
+     *   get weightKg: retorna l'atribut privat corresponent.
+     *   get imageUrl: retorna l'atribut privat corresponent.
+     *   get cryUrl: retorna l'atribut privat corresponent (pot ser string o null).
+     *   get types: retorna un array d'objectes PokemonType
+     *   get stats: retorna un array de type Stat
+     */
+
+
+    export class DetailedPokemon extends BasePokemon { //PON EL EXPORT PARA IMPORTAR EN OTROS ARCHIVOS.
+
+        private _weightKg: number;
+
+        private _imageUrl: string;
+
+        private _types: PokemonType[] = [];
+
+        private _stats: Stat[] = [];
+
+        private _cryUrl: string | null; //Si pones |, union de tipos que te permite que sea string o null.
+
+        constructor(data: IPokeApiDetail, url: string) {
+
+            let objecte: IPokeApiListItem = {
+                name: data.name,
+                url: url
+            }
+            super(objecte);
+
+            this._weightKg = data.weight / 10;
+
+            this._imageUrl = data.sprites?.front_default || ""; //Que si lo que devuelve es null, lo deja como cadena vacía.
+
+            this._cryUrl = data.cries?.latest || null;
+
+            this._types = data.types
+                .map((t) => POKEMON_TYPES[t.type.name])
+                .filter((type): type is PokemonType => type !== undefined);
+
+            this._stats = data.stats.map((s): Stat => [s.stat.name, s.base_stat]);
+
+        }
+
+
+        get weightKg(): number {
+            return this._weightKg;
+        }
+
+        get stats(): Stat[] {
+            return this._stats;
+        }
+
+        get types(): PokemonType[] {
+            return this._types;
+        }
+
+
+        get imageUrl(): string {
+            return this._imageUrl;
+        }
+
+
+        get cryUrl(): string | null {
+            return this._cryUrl;
+        }
+
+    }
 
 
