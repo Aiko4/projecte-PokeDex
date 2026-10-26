@@ -202,4 +202,20 @@ export function renderitzarDetallCard(pokemon: Models.DetailedPokemon){
 
 // TODO: Implementa la lògica de l'exercici 4 seguint els requisits
 
+export function generarBotonsTipus(): void {
+    let container = document.getElementById("type-filter-container") as HTMLDivElement;
+
+    container.innerHTML = "";
+
+    for (let tipus of Object.values(Models.POKEMON_TYPES)) {
+        let btn = document.createElement("button");
+        btn.className = "btn-type";
+        btn.dataset.type = tipus.id;
+        btn.style.backgroundColor = tipus.color;
+        btn.textContent = tipus.label;
+        container.appendChild(btn);
+    }
+}
+
+
 

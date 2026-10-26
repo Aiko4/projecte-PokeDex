@@ -6,7 +6,7 @@
 import * as Models from "./models.js";
 import { BasePokemon } from "./models.js";
 import * as Utils from "./utils.js";
-
+Utils.generarBotonsTipus();
 const mapaPokemon = new Map<number, Models.BasePokemon>();
 let llistaPokemons: BasePokemon[] = [];
 

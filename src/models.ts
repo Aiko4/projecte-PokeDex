@@ -5,9 +5,6 @@
     //    valida en execució que l'API realment retorni aquesta estructura.
     // ==========================================================
 
-
-    import * as url from "node:url";
-
     export interface IPokeApiListItem {
         name: string;
         url: string;

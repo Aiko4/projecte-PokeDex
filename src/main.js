@@ -5,6 +5,7 @@
 import * as Models from "./models.js";
 import { BasePokemon } from "./models.js";
 import * as Utils from "./utils.js";
+Utils.generarBotonsTipus();
 const mapaPokemon = new Map();
 let llistaPokemons = [];
 let btnCarregar = document.getElementById("btn-show-all");
