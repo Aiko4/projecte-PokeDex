@@ -4,9 +4,9 @@
 // TODO: Implementa la lògica de l'exercici 1 seguint els requisits
 
 import * as Models from "./models.js";
-import { BasePokemon } from "./models.js";
+import {BasePokemon, POKEMON_TYPES} from "./models.js";
 import * as Utils from "./utils.js";
-Utils.generarBotonsTipus();
+
 const mapaPokemon = new Map<number, Models.BasePokemon>();
 let llistaPokemons: BasePokemon[] = [];
 
@@ -130,11 +130,29 @@ async function carregarDetallPokemon(id: number, url: string): Promise<void>{
 // ==========================================================
 // EXERCICI 4: Botons de filtre per tipus
 // ==========================================================
-// TODO: Implementa la lògica de l'exercici 4 seguint els requisits
 
+    Utils.generarBotonsTipus();
 
 
 // ==========================================================
 // EXERCICI 5: Filtrar la llista per tipus
 // ==========================================================
 // TODO: Implementa la lògica de l'exercici 5 seguint els requisits
+
+    function carregarPokemonPerTipus(){
+
+        let containerTipus = document.getElementById("type-filter-container") as HTMLDivElement;
+
+
+        //for(let [nomTipus,valorsTipus] of Object.entries(tipus)){
+
+        //}
+    }
+
+    for(let btn of containerTipus.children){
+       
+
+        btn.addEventListener("click" , carregarPokemonPerTipus)
+    }
+
+    carregarPokemonPerTipus();

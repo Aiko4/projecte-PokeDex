@@ -5,7 +5,6 @@
 import * as Models from "./models.js";
 import { BasePokemon } from "./models.js";
 import * as Utils from "./utils.js";
-Utils.generarBotonsTipus();
 const mapaPokemon = new Map();
 let llistaPokemons = [];
 let btnCarregar = document.getElementById("btn-show-all");
@@ -99,9 +98,11 @@ async function carregarDetallPokemon(id, url) {
 // ==========================================================
 // EXERCICI 4: Botons de filtre per tipus
 // ==========================================================
-// TODO: Implementa la lògica de l'exercici 4 seguint els requisits
+Utils.generarBotonsTipus();
 // ==========================================================
 // EXERCICI 5: Filtrar la llista per tipus
 // ==========================================================
 // TODO: Implementa la lògica de l'exercici 5 seguint els requisits
+async function carregarPokemonPerTipus(tipus) {
+}
 //# sourceMappingURL=main.js.map
