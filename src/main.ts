@@ -4,9 +4,10 @@
 // TODO: Implementa la lògica de l'exercici 1 seguint els requisits
 
 import * as Models from "./models.js";
-import {BasePokemon, POKEMON_TYPES} from "./models.js";
+import {BasePokemon, IPokeApiListItem, IPokeApiTypeSlot, POKEMON_TYPES} from "./models.js";
 import * as Utils from "./utils.js";
 
+Utils.generarBotonsTipus();
 const mapaPokemon = new Map<number, Models.BasePokemon>();
 let llistaPokemons: BasePokemon[] = [];
 
@@ -15,6 +16,55 @@ let filterBox = document.querySelector(".search-box") as HTMLDivElement;
 
 btnCarregar.addEventListener("click", carregarLlistaPokemon);
 filterBox.addEventListener("input", filtrar);
+
+let containerTipus = document.getElementById("type-filter-container") as HTMLDivElement;
+let btnDesactivar: Element;
+
+for (let btn of containerTipus.children) {
+    btn.addEventListener("click" , event => {
+        if (btnDesactivar != undefined) {
+            btnDesactivar.classList.remove("active");
+        }
+        let btnSeleccionat = event.currentTarget as HTMLElement;
+        btnDesactivar = btnSeleccionat;
+        let tipus = btnSeleccionat.dataset.type;
+        btnSeleccionat.classList.add("active");
+
+        carregarPokemonPerTipus(tipus);
+    });
+}
+
+async function carregarPokemonPerTipus(tipus: string | undefined) {
+    Utils.mostrarEstat("Carregant pokemons de tipus " + tipus + "...", "loading");
+    try {
+        const resposta = await fetch(`https://pokeapi.co/api/v2/type/${tipus}`);
+        if (!resposta.ok) {
+            throw new Error(`Error HTTP: ${resposta.status}`);
+        } else {
+            const result = await resposta.json() as Models.IPokeApiTypeResponse;
+            let arrayPokemons: IPokeApiTypeSlot[] = result.pokemon;
+
+            let llistaPokemonsSeleccionats: BasePokemon[] = [];
+
+            mapaPokemon.clear();
+            for (let pokemon of arrayPokemons) {
+                if (Number(pokemon.pokemon.url.split("/").filter(Boolean).pop()) < 151) {
+                    let pokemonNou: BasePokemon = new BasePokemon(pokemon.pokemon);
+                    mapaPokemon.set(Number(pokemon.pokemon.url.split("/").filter(Boolean).pop()), pokemonNou);
+                    llistaPokemonsSeleccionats = Array.from(mapaPokemon.values());
+                }
+            }
+
+            Utils.renderitzarLlistaNoms(llistaPokemonsSeleccionats);
+            Utils.netejarCercador();
+            Utils.netejarDetallCard();
+            Utils.amagarEstat();
+        }
+    } catch {
+        Utils.mostrarEstat("S'ha produit el següent error: ", "error");
+    }
+}
+
 
 async function carregarLlistaPokemon() {
 
@@ -125,34 +175,11 @@ async function carregarDetallPokemon(id: number, url: string): Promise<void>{
 }
 
 
-
-
 // ==========================================================
 // EXERCICI 4: Botons de filtre per tipus
 // ==========================================================
-
-    Utils.generarBotonsTipus();
-
 
 // ==========================================================
 // EXERCICI 5: Filtrar la llista per tipus
 // ==========================================================
 // TODO: Implementa la lògica de l'exercici 5 seguint els requisits
-
-    function carregarPokemonPerTipus(){
-
-        let containerTipus = document.getElementById("type-filter-container") as HTMLDivElement;
-
-
-        //for(let [nomTipus,valorsTipus] of Object.entries(tipus)){
-
-        //}
-    }
-
-    for(let btn of containerTipus.children){
-       
-
-        btn.addEventListener("click" , carregarPokemonPerTipus)
-    }
-
-    carregarPokemonPerTipus();

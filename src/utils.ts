@@ -214,7 +214,6 @@ export function generarBotonsTipus(): void {
         btn.style.backgroundColor = tipus.color;
         btn.textContent = tipus.label;
         container.appendChild(btn);
-
     }
 }
 
